@@ -1,4 +1,4 @@
-# PrometheusPhoenix [![Hex.pm](https://img.shields.io/hexpm/v/prometheus_phoenix.svg?maxAge=2592000)](https://hex.pm/packages/prometheus_phoenix)
+# PrometheusPhoenix [![Hex.pm](https://img.shields.io/hexpm/v/prometheus_phoenix.svg?maxAge=2592000)](https://hex.pm/packages/prometheus_phoenix) [![Build Status](https://travis-ci.org/deadtrickster/prometheus-phoenix.svg?branch=master)](https://travis-ci.org/deadtrickster/prometheus-phoenix)
 
 ## Metrics
 
