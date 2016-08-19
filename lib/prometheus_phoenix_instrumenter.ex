@@ -6,11 +6,11 @@ defmodule Prometheus.PhoenixInstrumenter do
 
   def setup do
     controller_call_labels = Config.controller_call_labels
-
+    duration_buckets = Config.duration_buckets
     :prometheus_histogram.declare([name: :phoenix_controller_call_duration_microseconds,
                                    help: "Whole controller pipeline execution time.",
                                    labels: controller_call_labels,
-                                   buckets: Config.duration_buckets])
+                                   buckets: duration_buckets])
   end
 
   def phoenix_controller_call(:start, _compile, %{conn: conn}) do
