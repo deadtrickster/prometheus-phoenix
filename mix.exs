@@ -31,7 +31,7 @@ defmodule PrometheusPhoenix.Mixfile do
   end
 
   defp deps do
-    [{:prometheus, "~> 2.0"},
+    [{:prometheus, "~> 2.1"},
      {:phoenix, "~> 1.2"}]
   end
 end
