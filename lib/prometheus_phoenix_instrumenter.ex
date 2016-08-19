@@ -4,10 +4,9 @@ defmodule Prometheus.PhoenixInstrumenter do
 
   alias Prometheus.PhoenixInstrumenter.Config
 
-  @behaviour :prometheus_instrumenter
-
-  def setup_instrumenter do
+  def setup do
     controller_call_labels = Config.controller_call_labels
+
     :prometheus_histogram.declare([name: :phoenix_controller_call_duration_microseconds,
                                    help: "Whole controller pipeline execution time.",
                                    labels: controller_call_labels,
@@ -23,15 +22,15 @@ defmodule Prometheus.PhoenixInstrumenter do
       labels,
       microseconds_time(time_diff))
   end
-  
+
   defp microseconds_time(time) do
     System.convert_time_unit(time, :native, :micro_seconds)
-  end  
+  end
 
   defp construct_labels(labels, data) do
     for label <- labels, do: label_value(label, data)
   end
-  
+
   defp label_value(:controller, conn), do: inspect(controller_module(conn))
   defp label_value(:action, conn), do: action_name(conn)
   defp label_value(:method, conn), do: conn.method

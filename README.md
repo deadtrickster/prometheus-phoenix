@@ -58,7 +58,7 @@ phoenix_controller_call_duration_microseconds_sum{controller="Controller1",actio
 
     ```elixir
     def deps do
-      [{:prometheus_phoenix, "~> 0.0.2"}]
+      [{:prometheus_phoenix, "~> 0.0.4"}]
     end
     ```
 
