@@ -26,8 +26,8 @@ defmodule PrometheusPhoenix.Mixfile do
     [maintainers: ["Ilya Khaprov"],
      licenses: ["MIT"],
      links: %{"GitHub" => "https://github.com/deadtrickster/prometheus-phoenix",
-              "Phoenix Plugs" => "https://github.com/deadtrickster/prometheus-plugs",
-              "Ecto integration" => "https://github.com/deadtrickster/prometheus-ecto"}]
+              "Plugs" => "https://github.com/deadtrickster/prometheus-plugs",
+              "Ecto Instrumenter" => "https://github.com/deadtrickster/prometheus-ecto"}]
   end
 
   defp deps do
