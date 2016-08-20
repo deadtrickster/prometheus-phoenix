@@ -1,21 +1,18 @@
 ExUnit.start()
 
-Application.put_env(:phoenix, Endpoint, [instrumenters: [Prometheus.PhoenixInstrumenter]])
-defmodule Router do
-  @moduledoc """
-  Let's use a plug router to test this endpoint.
-  """
+Application.put_env(:phoenix, PrometheusPhoenixTest.Endpoint, [instrumenters: [Prometheus.PhoenixInstrumenter]])
+
+defmodule PrometheusPhoenixTest.Router do
   use Phoenix.Router
-
-  get "/qwe", Controller, :qwe
+  get "/qwe", PrometheusPhoenixTest.Controller, :qwe
 end
 
-defmodule Endpoint do
+defmodule PrometheusPhoenixTest.Endpoint do
   use Phoenix.Endpoint, otp_app: :phoenix
-  plug Router
+  plug PrometheusPhoenixTest.Router
 end
 
-defmodule Controller do
+defmodule PrometheusPhoenixTest.Controller do
   use Phoenix.Controller
 
   def qwe(conn, _params) do
