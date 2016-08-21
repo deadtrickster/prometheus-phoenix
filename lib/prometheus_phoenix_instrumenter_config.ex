@@ -2,8 +2,10 @@ defmodule Prometheus.PhoenixInstrumenter.Config do
 
   @default_controller_call_labels [:controller, :action]
   @default_duration_buckets :prometheus_http.microseconds_duration_buckets()
+  @default_registry :default
   @default_config [controller_call_labels: @default_controller_call_labels,
-                   duration_buckets: @default_duration_buckets]
+                   duration_buckets: @default_duration_buckets,
+                   registry: @default_registry]
 
   def controller_call_labels do
     config(:controller_call_labels, @default_controller_call_labels)
@@ -13,12 +15,16 @@ defmodule Prometheus.PhoenixInstrumenter.Config do
     config(:duration_buckets, @default_duration_buckets)
   end
 
-  def instrumenter_config do
+  def registry do
+    config(:registry, @default_registry)
+  end
+
+  def config do
     Application.get_env(:prometheus, PhoenixInstrumenter, @default_config)
   end
 
   def config(name, default) do
-    instrumenter_config
+    config
     |> Keyword.get(name, default)
   end
   
