@@ -2,7 +2,9 @@ defmodule Prometheus.PhoenixInstrumenter do
   import Phoenix.Controller
   require Logger
 
-  alias Prometheus.PhoenixInstrumenter.Config
+  use Prometheus.Config, [controller_call_labels: [:controller, :action],
+                          duration_buckets: :prometheus_http.microseconds_duration_buckets(),
+                          registry: :default]
 
   def setup do
     controller_call_labels = Config.controller_call_labels
