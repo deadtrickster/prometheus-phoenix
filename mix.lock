@@ -3,5 +3,5 @@
   "phoenix_pubsub": {:hex, :phoenix_pubsub, "1.0.0", "c31af4be22afeeebfaf246592778c8c840e5a1ddc7ca87610c41ccfb160c2c57", [:mix], []},
   "plug": {:hex, :plug, "1.2.0", "496bef96634a49d7803ab2671482f0c5ce9ce0b7b9bc25bc0ae8e09859dd2004", [:mix], [{:cowboy, "~> 1.0", [hex: :cowboy, optional: true]}, {:mime, "~> 1.0", [hex: :mime, optional: false]}]},
   "poison": {:hex, :poison, "2.2.0", "4763b69a8a77bd77d26f477d196428b741261a761257ff1cf92753a0d4d24a63", [:mix], []},
-  "prometheus": {:hex, :prometheus, "2.1.0", "c224c2c52c48d0e933ba1021fac80bc13339467c667c9a9e5943337da1c82d43", [:rebar3], []},
-  "prometheus_ex": {:hex, :prometheus_ex, "0.0.1", "d4402f09b7f3a9f0d9f2033be90218e1472a031e82e3e459533a32cb50f73884", [:mix], [{:prometheus, "~> 2.0", [hex: :prometheus, optional: false]}]}}
+  "prometheus": {:hex, :prometheus, "2.2.0", "f58f6f168d2d83afacd010b440c28ac897b5fcc81281845b218ce48b2fe21bd0", [:rebar3], []},
+  "prometheus_ex": {:hex, :prometheus_ex, "0.0.3", "7f70a9536345d922b75adb40c7ed9a9981b7e0982b9cec971b28371a5363a9df", [:mix], [{:prometheus, "~> 2.2.0", [hex: :prometheus, optional: false]}]}}
