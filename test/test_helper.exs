@@ -1,10 +1,25 @@
 ExUnit.start()
 
 Application.put_env(:phoenix, PrometheusPhoenixTest.Endpoint,
-  [instrumenters: [TestPhoenixInstrumenter]])
+  [instrumenters: [TestPhoenixInstrumenter,
+                   TestPhoenixInstrumenterWithConfig]])
+
+Application.put_env(:prometheus, TestPhoenixInstrumenterWithConfig,
+  controller_call_labels: [:controller,
+                           :custom_label],
+  registry: :qwe,
+  duration_buckets: [100, 200])
 
 defmodule TestPhoenixInstrumenter do
   use Prometheus.PhoenixInstrumenter
+end
+
+defmodule TestPhoenixInstrumenterWithConfig do
+  use Prometheus.PhoenixInstrumenter
+
+  def label_value(:custom_label, _) do
+    "custom_label"
+  end
 end
 
 defmodule PrometheusPhoenixTest.Router do
@@ -27,5 +42,4 @@ defmodule PrometheusPhoenixTest.Controller do
   end
 end
 
-TestPhoenixInstrumenter.setup()
 PrometheusPhoenixTest.Endpoint.start_link
