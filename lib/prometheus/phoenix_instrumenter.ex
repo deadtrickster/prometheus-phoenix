@@ -1,9 +1,91 @@
 defmodule Prometheus.PhoenixInstrumenter do
+  @moduledoc """
+
+  Phoenix instrumenter generator for Prometheus. Implemented as Phoenix instrumenter.
+
+  ### Usage
+
+  1. Define your instrumenter:
+
+  ```elixir
+  defmodule MyApp.Endpoint.Instrumenter do
+    use Prometheus.PhoenixInstrumenter
+  end
+  ```
+
+  2. Call `MyApp.Endpoint.Instrumenter.setup/0` when application starts (e.g. supervisor setup):
+
+  ```elixir
+  MyApp.Endpoint.Instrumenter.setup()
+  ```
+
+  3. Add `MyApp.Endpoint.Instrumenter` to Phoenix endpoint instrumenters list:
+
+  ```elixir
+  config :myapp, MyApp.Endpoint,
+    ...
+    instrumenters: [MyApp.Endpoint.Instrumenter]
+    ...
+
+  ```
+
+  ### Metrics
+
+  Currently only one controller_call event is instrumented and exposed via `phoenix_controller_call_duration_microseconds`
+  histogram. Render_view is coming soon (awaits phoenix release).
+
+  Default labels:
+   - controller - controller module name;
+   - action - action name;
+   - method - http method;
+   - host - requested host;
+   - port - requested port;
+   - scheme - request scheme (like http or https).
+
+  ### Configuration
+
+  Instrumenter configured via `:prometheus` application environment `MyApp.Endpoint.Instrumenter` key
+  (i.e. app env key is the name of the instrumenter).
+
+  Default configuration:
+
+  ```elixir
+  config :prometheus, MyApp.Endpoint.Instrumenter,
+    controller_call_labels: [:controller, :action],
+    duration_buckets: :prometheus_http.microseconds_duration_buckets(),
+    registry: :default
+  ```
+
+  Bear in mind that bounds are ***microseconds*** (1s is 1_000_000us)
+
+  ### Custom Labels
+
+  Custom labels can be defined by implementing label_value/2 function in instrumenter directly or
+  by calling exported function from other module.
+
+  ```elixir
+    controller_call_labels: [:controller,
+                             :my_private_label,
+                             {:label_from_other_module, Module}, # eqv to {Module, label_value}
+                             {:non_default_label_value, {Module, custom_fun}}]
+
+
+  defmodule MyApp.Endpoint.Instrumenter do
+    use Prometheus.PhoenixInstrumenter
+
+    label_value(:my_private_label, conn) do
+      ...
+    end
+  end
+  ```
+  """
+
   import Phoenix.Controller
   require Logger
+  require Prometheus.Contrib.HTTP
 
   use Prometheus.Config, [controller_call_labels: [:controller, :action],
-                          duration_buckets: :prometheus_http.microseconds_duration_buckets(),
+                          duration_buckets: Prometheus.Contrib.HTTP.microseconds_duration_buckets(),
                           registry: :default]
 
   use Prometheus.Metric
@@ -16,12 +98,12 @@ defmodule Prometheus.PhoenixInstrumenter do
     ncontroller_call_labels = normalize_labels(controller_call_labels)
     duration_buckets = Config.duration_buckets(module_name)
     registry = Config.registry(module_name)
-    
+
     quote do
-      
+
       import Phoenix.Controller
       use Prometheus.Metric
-      
+
       def setup do
         Histogram.declare([name: :phoenix_controller_call_duration_microseconds,
                            help: "Whole controller pipeline execution time.",
@@ -44,7 +126,7 @@ defmodule Prometheus.PhoenixInstrumenter do
         System.convert_time_unit(time, :native, :micro_seconds)
       end
     end
-  end  
+  end
 
   defp normalize_labels(labels) do
     for label <- labels do
