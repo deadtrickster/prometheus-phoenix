@@ -6,13 +6,6 @@ defmodule PrometheusPhoenixTest do
 
   @endpoint PrometheusPhoenixTest.Endpoint
 
-  setup_all do
-    PrometheusPhoenixTest.Endpoint.start_link
-    Prometheus.PhoenixInstrumenter.setup()
-    :ok
-  end
-
-
   test "the truth" do
     assert 1 + 1 == 2
   end

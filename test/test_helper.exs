@@ -1,6 +1,11 @@
 ExUnit.start()
 
-Application.put_env(:phoenix, PrometheusPhoenixTest.Endpoint, [instrumenters: [Prometheus.PhoenixInstrumenter]])
+Application.put_env(:phoenix, PrometheusPhoenixTest.Endpoint,
+  [instrumenters: [TestPhoenixInstrumenter]])
+
+defmodule TestPhoenixInstrumenter do
+  use Prometheus.PhoenixInstrumenter
+end
 
 defmodule PrometheusPhoenixTest.Router do
   use Phoenix.Router
@@ -21,3 +26,6 @@ defmodule PrometheusPhoenixTest.Controller do
     |> send_resp(200, "qwe")
   end
 end
+
+TestPhoenixInstrumenter.setup()
+PrometheusPhoenixTest.Endpoint.start_link
