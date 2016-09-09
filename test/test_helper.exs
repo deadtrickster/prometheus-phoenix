@@ -8,7 +8,8 @@ Application.put_env(:prometheus, TestPhoenixInstrumenterWithConfig,
   controller_call_labels: [:controller,
                            :custom_label],
   registry: :qwe,
-  duration_buckets: [100, 200])
+  duration_buckets: [100, 200],
+  duration_unit: :seconds)
 
 defmodule TestPhoenixInstrumenter do
   use Prometheus.PhoenixInstrumenter
@@ -36,6 +37,7 @@ defmodule PrometheusPhoenixTest.Controller do
   use Phoenix.Controller
 
   def qwe(conn, _params) do
+    Process.sleep(1000)
     conn
     |> put_resp_content_type("text/html")
     |> send_resp(200, "qwe")

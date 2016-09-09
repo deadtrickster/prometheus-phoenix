@@ -31,7 +31,7 @@ defmodule Prometheus.PhoenixInstrumenter do
 
   ### Metrics
 
-  Currently only one controller_call event is instrumented and exposed via `phoenix_controller_call_duration_microseconds`
+  Currently only one controller_call event is instrumented and exposed via `phoenix_controller_call_duration_<duration_unit>`
   histogram. Render_view is coming soon (awaits phoenix release).
 
   Default labels:
@@ -53,10 +53,20 @@ defmodule Prometheus.PhoenixInstrumenter do
   config :prometheus, MyApp.Endpoint.Instrumenter,
     controller_call_labels: [:controller, :action],
     duration_buckets: :prometheus_http.microseconds_duration_buckets(),
-    registry: :default
+    registry: :default,
+    duration_unit: :microseconds
   ```
 
-  Bear in mind that bounds are ***microseconds*** (1s is 1_000_000us)
+  Available duration units:
+   - microseconds;
+   - milliseconds;
+   - seconds;
+   - minutes;
+   - hours;
+   - days.
+
+  Bear in mind that buckets are ***<duration_unit>*** so if you are not using default unit
+  you also have to override buckets.
 
   ### Custom Labels
 
@@ -86,7 +96,8 @@ defmodule Prometheus.PhoenixInstrumenter do
 
   use Prometheus.Config, [controller_call_labels: [:controller, :action],
                           duration_buckets: Prometheus.Contrib.HTTP.microseconds_duration_buckets(),
-                          registry: :default]
+                          registry: :default,
+                          duration_unit: :microseconds]
 
   use Prometheus.Metric
 
@@ -98,6 +109,7 @@ defmodule Prometheus.PhoenixInstrumenter do
     ncontroller_call_labels = normalize_labels(controller_call_labels)
     duration_buckets = Config.duration_buckets(module_name)
     registry = Config.registry(module_name)
+    duration_unit = Config.duration_unit(module_name)
 
     quote do
 
@@ -105,8 +117,8 @@ defmodule Prometheus.PhoenixInstrumenter do
       use Prometheus.Metric
 
       def setup do
-        Histogram.declare([name: :phoenix_controller_call_duration_microseconds,
-                           help: "Whole controller pipeline execution time.",
+        Histogram.declare([name: unquote(:"phoenix_controller_call_duration_#{duration_unit}"),
+                           help: unquote("Whole controller pipeline execution time in #{duration_unit}."),
                            labels: unquote(ncontroller_call_labels),
                            buckets: unquote(duration_buckets),
                            registry: unquote(registry)])
@@ -118,12 +130,8 @@ defmodule Prometheus.PhoenixInstrumenter do
       def phoenix_controller_call(:stop, time_diff, conn) do
         labels = unquote(construct_labels(controller_call_labels))
         Histogram.observe([registry: unquote(registry),
-                           name: :phoenix_controller_call_duration_microseconds,
-                           labels: labels], microseconds_time(time_diff))
-      end
-
-      defp microseconds_time(time) do
-        System.convert_time_unit(time, :native, :micro_seconds)
+                           name: unquote(:"phoenix_controller_call_duration_#{duration_unit}"),
+                           labels: labels], time_diff)
       end
     end
   end

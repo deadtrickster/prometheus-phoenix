@@ -24,17 +24,17 @@ defmodule PrometheusPhoenixTest do
     assert html_response(conn, 200) =~ "qwe"
     assert {buckets, sum} = Histogram.value([name: :phoenix_controller_call_duration_microseconds,
                                              labels: ["PrometheusPhoenixTest.Controller", :qwe]])
-    assert sum > 0
+    assert (sum > 1000000 and sum < 1200000)
     assert 1 = Enum.reduce(buckets, fn(x, acc) -> x + acc end)
   end
 
   test "Custom config" do
     conn = get build_conn(), "/qwe"
     assert html_response(conn, 200) =~ "qwe"
-    assert {buckets, sum} = Histogram.value([name: :phoenix_controller_call_duration_microseconds,
+    assert {buckets, sum} = Histogram.value([name: :phoenix_controller_call_duration_seconds,
                                              labels: ["PrometheusPhoenixTest.Controller", "custom_label"],
                                              registry: :qwe])
-    assert sum > 0
+    assert (sum > 1 and sum < 1.2)
     assert 3 = length(buckets)
     assert 1 = Enum.reduce(buckets, fn(x, acc) -> x + acc end)
   end
