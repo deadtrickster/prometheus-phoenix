@@ -1,5 +1,8 @@
 # Prometheus.io Phoenix Instrumenter
-[![Hex.pm](https://img.shields.io/hexpm/v/prometheus_phoenix.svg?maxAge=2592000)](https://hex.pm/packages/prometheus_phoenix) [![Build Status](https://travis-ci.org/deadtrickster/prometheus-phoenix.svg?branch=master)](https://travis-ci.org/deadtrickster/prometheus-phoenix)  [![Documentation](https://img.shields.io/badge/documentation-on%20hexdocs-green.svg)](https://hexdocs.pm/prometheus_phoenix/)
+[![Hex.pm](https://img.shields.io/hexpm/v/prometheus_phoenix.svg?maxAge=2592000)](https://hex.pm/packages/prometheus_phoenix)
+[![Hex.pm](https://img.shields.io/hexpm/dt/prometheus_phoenix.svg?maxAge=2592000)](https://hex.pm/packages/prometheus_phoenix)
+[![Build Status](https://travis-ci.org/deadtrickster/prometheus-phoenix.svg?branch=master)](https://travis-ci.org/deadtrickster/prometheus-phoenix)
+[![Documentation](https://img.shields.io/badge/documentation-on%20hexdocs-green.svg)](https://hexdocs.pm/prometheus_phoenix/)
 
 Phoenix integeration for [Prometheus.ex](https://github.com/deadtrickster/prometheus.ex).
 
