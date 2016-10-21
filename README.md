@@ -6,6 +6,9 @@
 
 Phoenix integeration for [Prometheus.ex](https://github.com/deadtrickster/prometheus.ex).
 
+ - IRC: #elixir-lang on Freenode;
+ - [Slack](https://elixir-slackin.herokuapp.com/): #prometheus channel - [Browser](https://elixir-lang.slack.com/messages/prometheus) or App(slack://elixir-lang.slack.com/messages/prometheus).
+
 ## Metrics
 
  - `phoenix_controller_call_duration_microseconds` - Whole controller pipeline execution time.
