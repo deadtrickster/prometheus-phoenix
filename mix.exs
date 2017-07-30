@@ -34,14 +34,16 @@ defmodule PrometheusPhoenix.Mixfile do
               "Prometheus.erl" => "https://hex.pm/packages/prometheus",
               "Prometheus.ex" => "https://hex.pm/packages/prometheus_ex",
               "Plugs Instrumenter/Exporter" => "https://hex.pm/packages/prometheus_plugs",
+              "Inets HTTPD Exporter" => "https://hex.pm/packages/prometheus_httpd",
               "Ecto Instrumenter" => "https://hex.pm/packages/prometheus_ecto",
               "Process info Collector" => "https://hex.pm/packages/prometheus_process_collector"}]
   end
 
   defp deps do
-    [{:prometheus_ex, "~> 1.1"},
-     {:phoenix, "~> 1.2"},    
-     {:ex_doc, "~> 0.11", only: :dev},
-     {:earmark, ">= 0.0.0", only: :dev}]
+    [{:prometheus_ex, "~> 1.3"},
+     {:phoenix, "~> 1.3"},
+     {:phoenix_html, "~> 2.10", only: [:test]},
+     {:ex_doc, "~> 0.16.1", only: [:dev]},
+     {:earmark, "~> 1.2", only: [:dev]}]
   end
 end
