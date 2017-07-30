@@ -31,16 +31,21 @@ defmodule Prometheus.PhoenixInstrumenter do
 
   ### Metrics
 
-  Currently only one controller_call event is instrumented and exposed via `phoenix_controller_call_duration_<duration_unit>`
-  histogram. Render_view is coming soon (awaits phoenix release).
+  Currently controller_call and controller_render events are instrumented and exposed via `phoenix_controller_call_duration_<duration_unit>`
+  and `phoenix_controller_render_duration_<duration_unit>` histograms. Channel metrics are coming soon.
 
-  Default labels:
+  Default phoenix_controller_call labels:
    - controller - controller module name;
    - action - action name;
    - method - http method;
    - host - requested host;
    - port - requested port;
    - scheme - request scheme (like http or https).
+
+  Default phoenix_controller_render labels:
+   - view - name of the view;
+   - template - name of the template;
+   - format - name of the format of the template.
 
   ### Configuration
 
@@ -79,7 +84,6 @@ defmodule Prometheus.PhoenixInstrumenter do
                              {:label_from_other_module, Module}, # eqv to {Module, label_value}
                              {:non_default_label_value, {Module, custom_fun}}]
 
-
   defmodule MyApp.Endpoint.Instrumenter do
     use Prometheus.PhoenixInstrumenter
 
@@ -93,9 +97,12 @@ defmodule Prometheus.PhoenixInstrumenter do
   import Phoenix.Controller
   require Logger
   require Prometheus.Contrib.HTTP
+  alias Prometheus.Contrib.HTTP
 
   use Prometheus.Config, [controller_call_labels: [:controller, :action],
-                          duration_buckets: Prometheus.Contrib.HTTP.microseconds_duration_buckets(),
+                          controller_render_labels: [:view, :template, :format],
+                          duration_buckets: HTTP.microseconds_duration_buckets(),
+                          render_duration_buckets: HTTP.microseconds_duration_buckets(),
                           registry: :default,
                           duration_unit: :microseconds]
 
@@ -108,6 +115,11 @@ defmodule Prometheus.PhoenixInstrumenter do
     controller_call_labels = Config.controller_call_labels(module_name)
     ncontroller_call_labels = normalize_labels(controller_call_labels)
     duration_buckets = Config.duration_buckets(module_name)
+
+    controller_render_labels = Config.controller_render_labels(module_name)
+    ncontroller_render_labels = normalize_labels(controller_render_labels)
+    render_duration_buckets = Config.duration_buckets(module_name)
+
     registry = Config.registry(module_name)
     duration_unit = Config.duration_unit(module_name)
 
@@ -122,6 +134,11 @@ defmodule Prometheus.PhoenixInstrumenter do
                            labels: unquote(ncontroller_call_labels),
                            buckets: unquote(duration_buckets),
                            registry: unquote(registry)])
+        Histogram.declare([name: unquote(:"phoenix_controller_render_duration_#{duration_unit}"),
+                           help: unquote("View rendering time in #{duration_unit}."),
+                           labels: unquote(ncontroller_render_labels),
+                           buckets: unquote(render_duration_buckets),
+                           registry: unquote(registry)])
       end
 
       def phoenix_controller_call(:start, _compile, %{conn: conn}) do
@@ -131,6 +148,16 @@ defmodule Prometheus.PhoenixInstrumenter do
         labels = unquote(construct_labels(controller_call_labels))
         Histogram.observe([registry: unquote(registry),
                            name: unquote(:"phoenix_controller_call_duration_#{duration_unit}"),
+                           labels: labels], time_diff)
+      end
+
+      def phoenix_controller_render(:start, _compile, data) do
+        data
+      end
+      def phoenix_controller_render(:stop, time_diff, %{view: view, template: template, format: format, conn: conn}) do
+        labels = unquote(construct_labels(controller_render_labels))
+        Histogram.observe([registry: unquote(registry),
+                           name: unquote(:"phoenix_controller_render_duration_#{duration_unit}"),
                            labels: labels], time_diff)
       end
     end
@@ -177,6 +204,21 @@ defmodule Prometheus.PhoenixInstrumenter do
   defp label_value(:port) do
     quote do
       conn.port
+    end
+  end
+  defp label_value(:view) do
+    quote do
+      view
+    end
+  end
+  defp label_value(:template) do
+    quote do
+      template
+    end
+  end
+  defp label_value(:format) do
+    quote do
+      format
     end
   end
   defp label_value({label, {module, fun}}) do
