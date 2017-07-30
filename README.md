@@ -35,7 +35,7 @@ This integartion is configured via <InstrumenterName> `:prometheus` app env key.
 
     ```elixir
     def deps do
-      [{:prometheus_phoenix, "~> 1.0.1"}]
+      [{:prometheus_phoenix, "~> 1.1.1"}]
     end
     ```
 
