@@ -1,4 +1,6 @@
 ExUnit.start()
+:application.ensure_all_started(:plug)
+:application.ensure_all_started(:phoenix)
 
 Application.put_env(:phoenix, PrometheusPhoenixTest.Endpoint,
   [instrumenters: [TestPhoenixInstrumenter,
@@ -26,11 +28,16 @@ end
 defmodule PrometheusPhoenixTest.Router do
   use Phoenix.Router
   get "/qwe", PrometheusPhoenixTest.Controller, :qwe
+  get "/qwe_view", PrometheusPhoenixTest.Controller, :qwe_view
 end
 
 defmodule PrometheusPhoenixTest.Endpoint do
   use Phoenix.Endpoint, otp_app: :phoenix
   plug PrometheusPhoenixTest.Router
+end
+
+defmodule PrometheusPhoenixTest.View do
+  use Phoenix.View, root: "test/templates"
 end
 
 defmodule PrometheusPhoenixTest.Controller do
@@ -41,6 +48,11 @@ defmodule PrometheusPhoenixTest.Controller do
     conn
     |> put_resp_content_type("text/html")
     |> send_resp(200, "qwe")
+  end
+
+  def qwe_view(conn, _params) do
+    Process.sleep(1000)
+    render(conn, PrometheusPhoenixTest.View, "qwe_view.html", name: "John Doe", layout: false)
   end
 end
 
