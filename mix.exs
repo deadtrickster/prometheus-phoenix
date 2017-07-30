@@ -44,6 +44,7 @@ defmodule PrometheusPhoenix.Mixfile do
      {:phoenix, "~> 1.3"},
      {:phoenix_html, "~> 2.10", only: [:test]},
      {:ex_doc, "~> 0.16.1", only: [:dev]},
-     {:earmark, "~> 1.2", only: [:dev]}]
+     {:earmark, "~> 1.2", only: [:dev]},    
+     {:credo, git: "https://github.com/rrrene/credo", only: [:dev, :test], runtime: false},]
   end
 end
