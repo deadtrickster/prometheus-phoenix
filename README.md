@@ -21,6 +21,10 @@ Phoenix integeration for [Prometheus.ex](https://github.com/deadtrickster/promet
     - `phoenix_channel_join_duration_<duration_unit>`;
   - `phoenix_channel_receive`
     - `phoenix_channel_receive_duration_<duration_unit>`.
+    
+## Live endpoint
+
+https://slackinex.herokuapp.com/metrics
 
 ## Configuration
 
