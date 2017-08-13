@@ -31,21 +31,52 @@ defmodule Prometheus.PhoenixInstrumenter do
 
   ### Metrics
 
-  Currently controller_call and controller_render events are instrumented and exposed via `phoenix_controller_call_duration_<duration_unit>`
-  and `phoenix_controller_render_duration_<duration_unit>` histograms. Channel metrics are coming soon.
+  Metrics implemented for the following built-in events:
 
-  Default phoenix_controller_call labels:
-   - controller - controller module name;
-   - action - action name;
-   - method - http method;
-   - host - requested host;
-   - port - requested port;
-   - scheme - request scheme (like http or https).
+  - `phoenix_controller_call`
+    - `phoenix_controller_call_duration_<duration_unit>`;
+  - `phoenix_controller_render`
+    - `phoenix_controller_render_duration_<duration_unit>`;
+  - `phoenix_channel_join`
+    - `phoenix_channel_join_duration_<duration_unit>`;
+  - `phoenix_channel_receive`
+    - `phoenix_channel_receive_duration_<duration_unit>`.
 
-  Default phoenix_controller_render labels:
-   - view - name of the view;
-   - template - name of the template;
-   - format - name of the format of the template.
+  Predefined controller call labels:
+   - action - action name (*default*);
+   - controller - controller module name (*default*).
+
+  Predefined controller render labels:
+   - format - name of the format of the template (*default*);
+   - template - name of the template (*default*);
+   - view - name of the view (*default*).
+
+  Predefined channel join/receive labels:
+   - channel - current channel module (*default*);
+   - endpoint - endpoint module where this socket originated;
+   - handler - socket module where this socket originated;
+   - pubsub_server - registered name of the socket's pubsub server;
+   - serializer - serializer for socket messages;
+   - topic - string topic  (*default*);
+   - transport - socket's transport;
+   - transport_name - socket's transport (*default*);
+   - vsn - protocol version of the client (*default*).
+
+  Predefined channel receive labels:
+   - event - event name (*default*).
+
+  Predefined common http request labels:
+   - host - request host;
+   - method - request method;
+   - port - request port;
+   - scheme - request scheme.
+
+  Predefined compile metadata labels:
+   - application - name of OTP application;
+   - file - name of file where instrumented function resides;
+   - function - name of the instrumented function;
+   - line - source line number;
+   - module - instrumented function's module.
 
   ### Configuration
 
@@ -99,10 +130,12 @@ defmodule Prometheus.PhoenixInstrumenter do
   require Prometheus.Contrib.HTTP
   alias Prometheus.Contrib.HTTP
 
-  use Prometheus.Config, [controller_call_labels: [:controller, :action],
-                          controller_render_labels: [:view, :template, :format],
+  use Prometheus.Config, [controller_call_labels: [:action, :controller],
+                          controller_render_labels: [:format, :template, :view],
+                          channel_join_labels: [:channel, :topic, :transport_name, :vsn],
+                          channel_receive_labels: [:channel, :topic, :transport_name,
+                                                   :vsn, :event],
                           duration_buckets: HTTP.microseconds_duration_buckets(),
-                          render_duration_buckets: HTTP.microseconds_duration_buckets(),
                           registry: :default,
                           duration_unit: :microseconds]
 
@@ -119,6 +152,14 @@ defmodule Prometheus.PhoenixInstrumenter do
     controller_render_labels = Config.controller_render_labels(module_name)
     ncontroller_render_labels = normalize_labels(controller_render_labels)
     render_duration_buckets = Config.duration_buckets(module_name)
+
+    channel_join_labels = Config.channel_join_labels(module_name)
+    nchannel_join_labels = normalize_labels(channel_join_labels)
+    channel_join_duration_buckets = Config.duration_buckets(module_name)
+
+    channel_receive_labels = Config.channel_receive_labels(module_name)
+    nchannel_receive_labels = normalize_labels(channel_receive_labels)
+    channel_receive_duration_buckets = Config.duration_buckets(module_name)
 
     registry = Config.registry(module_name)
     duration_unit = Config.duration_unit(module_name)
@@ -139,25 +180,55 @@ defmodule Prometheus.PhoenixInstrumenter do
                            labels: unquote(ncontroller_render_labels),
                            buckets: unquote(render_duration_buckets),
                            registry: unquote(registry)])
+        Histogram.declare([name: unquote(:"phoenix_channel_join_duration_#{duration_unit}"),
+                           help: unquote("Phoenix channel join handler time in #{duration_unit}"),
+                           labels: unquote(nchannel_join_labels),
+                           buckets: unquote(channel_join_duration_buckets),
+                           registry: unquote(registry)])
+        Histogram.declare([name: unquote(:"phoenix_channel_receive_duration_#{duration_unit}"),
+                           help: unquote("Phoenix channel receive handler time in #{duration_unit}"),
+                           labels: unquote(nchannel_receive_labels),
+                           buckets: unquote(channel_receive_duration_buckets),
+                           registry: unquote(registry)])
       end
 
-      def phoenix_controller_call(:start, _compile, %{conn: conn}) do
-        conn
+      def phoenix_controller_call(:start, compile, data) do
+        Map.put(data, :compile, compile)
       end
-      def phoenix_controller_call(:stop, time_diff, conn) do
+      def phoenix_controller_call(:stop, time_diff, %{conn: conn, compile: compile} = data) do
         labels = unquote(construct_labels(controller_call_labels))
         Histogram.observe([registry: unquote(registry),
                            name: unquote(:"phoenix_controller_call_duration_#{duration_unit}"),
                            labels: labels], time_diff)
       end
 
-      def phoenix_controller_render(:start, _compile, data) do
-        data
+      def phoenix_controller_render(:start, compile, data) do
+        Map.put(data, :compile, compile)
       end
-      def phoenix_controller_render(:stop, time_diff, %{view: view, template: template, format: format, conn: conn}) do
+      def phoenix_controller_render(:stop, time_diff, %{view: view, template: template, format: format, conn: conn, compile: compile} = data) do
         labels = unquote(construct_labels(controller_render_labels))
         Histogram.observe([registry: unquote(registry),
                            name: unquote(:"phoenix_controller_render_duration_#{duration_unit}"),
+                           labels: labels], time_diff)
+      end
+
+      def phoenix_channel_join(:start, compile, data) do
+        Map.put(data, :compile, compile)
+      end
+      def phoenix_channel_join(:stop, time_diff, %{socket: socket, compile: compile} = data) do
+        labels = unquote(construct_labels(channel_join_labels))
+        Histogram.observe([registry: unquote(registry),
+                           name: unquote(:"phoenix_channel_join_duration_#{duration_unit}"),
+                           labels: labels], time_diff)
+      end
+
+      def phoenix_channel_receive(:start, compile, data) do
+        Map.put(data, :compile, compile)
+      end
+      def phoenix_channel_receive(:stop, time_diff, %{socket: socket, event: event, compile: compile} = data) do
+        labels = unquote(construct_labels(channel_receive_labels))
+        Histogram.observe([registry: unquote(registry),
+                           name: unquote(:"phoenix_channel_receive_duration_#{duration_unit}"),
                            labels: labels], time_diff)
       end
     end
@@ -176,39 +247,21 @@ defmodule Prometheus.PhoenixInstrumenter do
     for label <- labels, do: label_value(label)
   end
 
-  defp label_value(:controller) do
-    quote do
-      inspect(controller_module(conn))
-    end
-  end
+  ## controller labels
   defp label_value(:action) do
     quote do
       action_name(conn)
     end
   end
-  defp label_value(:method) do
+  defp label_value(:controller) do
     quote do
-      conn.method
+      inspect(controller_module(conn))
     end
   end
-  defp label_value(:host) do
+  ## view labels
+  defp label_value(:format) do
     quote do
-      conn.host
-    end
-  end
-  defp label_value(:scheme) do
-    quote do
-      conn.scheme
-    end
-  end
-  defp label_value(:port) do
-    quote do
-      conn.port
-    end
-  end
-  defp label_value(:view) do
-    quote do
-      view
+      format
     end
   end
   defp label_value(:template) do
@@ -216,9 +269,108 @@ defmodule Prometheus.PhoenixInstrumenter do
       template
     end
   end
-  defp label_value(:format) do
+  defp label_value(:view) do
     quote do
-      format
+      view
+    end
+  end
+  ## request labels
+  defp label_value(:host) do
+    quote do
+      conn.host
+    end
+  end
+  defp label_value(:method) do
+    quote do
+      conn.method
+    end
+  end
+  defp label_value(:port) do
+    quote do
+      conn.port
+    end
+  end
+  defp label_value(:scheme) do
+    quote do
+      conn.scheme
+    end
+  end
+  ## channel metrics
+  defp label_value(:channel) do
+    quote do
+      inspect(socket.channel)
+    end
+  end
+  defp label_value(:endpoint) do
+    quote do
+      inspect(socket.endpoint)
+    end
+  end
+  defp label_value(:handler) do
+    quote do
+      inspect(socket.handler)
+    end
+  end
+  defp label_value(:pubsub_server) do
+    quote do
+      inspect(socket.pubsub_server)
+    end
+  end
+  defp label_value(:serializer) do
+    quote do
+      inspect(socket.serializer)
+    end
+  end
+  defp label_value(:topic) do
+    quote do
+      socket.topic
+    end
+  end
+  defp label_value(:transport) do
+    quote do
+      inspect(socket.transport)
+    end
+  end
+  defp label_value(:transport_name) do
+    quote do
+      Atom.to_string(socket.transport_name)
+    end
+  end
+  defp label_value(:vsn) do
+    quote do
+      socket.vsn
+    end
+  end
+  ## channel receive labels
+  defp label_value(:event) do
+    quote do
+      event
+    end
+  end
+  ## compile metadata labels
+  defp label_value(:application) do
+    quote do
+      inspect(compile.application)
+    end
+  end
+  defp label_value(:file) do
+    quote do
+      compile.file
+    end
+  end
+  defp label_value(:function) do
+    quote do
+      inspect(compile.function)
+    end
+  end
+  defp label_value(:line) do
+    quote do
+      compile.line
+    end
+  end
+  defp label_value(:module) do
+    quote do
+      inspect(compile.module)
     end
   end
   defp label_value({label, {module, fun}}) do
