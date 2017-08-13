@@ -11,8 +11,16 @@ Phoenix integeration for [Prometheus.ex](https://github.com/deadtrickster/promet
 
 ## Metrics
 
- - `phoenix_controller_call_duration_microseconds` - Whole controller pipeline execution time.
- - `phoenix_controller_render_duration_microseconds` - View rendering time.
+  Metrics implemented for the following built-in events:
+
+  - `phoenix_controller_call`
+    - `phoenix_controller_call_duration_<duration_unit>`;
+  - `phoenix_controller_render`
+    - `phoenix_controller_render_duration_<duration_unit>`;
+  - `phoenix_channel_join`
+    - `phoenix_channel_join_duration_<duration_unit>`;
+  - `phoenix_channel_receive`
+    - `phoenix_channel_receive_duration_<duration_unit>`.
 
 ## Configuration
 
