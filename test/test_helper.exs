@@ -4,7 +4,9 @@ ExUnit.start()
 
 Application.put_env(:phoenix, PrometheusPhoenixTest.Endpoint,
   [instrumenters: [TestPhoenixInstrumenter,
-                   TestPhoenixInstrumenterWithConfig]])
+                   TestPhoenixInstrumenterWithConfig],
+   pubsub: [name: SlackinEx.PubSub,
+            adapter: Phoenix.PubSub.PG2]])
 
 Application.put_env(:prometheus, TestPhoenixInstrumenterWithConfig,
   controller_call_labels: [:controller,
@@ -33,6 +35,9 @@ end
 
 defmodule PrometheusPhoenixTest.Endpoint do
   use Phoenix.Endpoint, otp_app: :phoenix
+
+  socket "/socket", PrometheusPhoenixTest.TestSocket
+
   plug PrometheusPhoenixTest.Router
 end
 
@@ -53,6 +58,35 @@ defmodule PrometheusPhoenixTest.Controller do
   def qwe_view(conn, _params) do
     Process.sleep(1000)
     render(conn, PrometheusPhoenixTest.View, "qwe_view.html", name: "John Doe", layout: false)
+  end
+end
+
+defmodule PrometheusPhoenixTest.TestSocket do
+  use Phoenix.Socket
+
+  channel "qwe:*", PrometheusPhoenixTest.TestChannel
+
+  transport :websocket, Phoenix.Transports.WebSocket,
+    timeout: 45_000
+
+  def connect(_params, socket) do
+    {:ok, socket}
+  end
+
+  def id(_socket), do: nil
+end
+
+defmodule PrometheusPhoenixTest.TestChannel do
+  use Phoenix.Channel
+
+  def join("qwe:qwa", _payload, socket) do
+    Process.sleep(200)
+    {:ok, socket}
+  end
+
+  def handle_in("invite", payload, socket) do
+    Process.sleep(500)
+    {:reply, {:ok, payload}, socket}
   end
 end
 
