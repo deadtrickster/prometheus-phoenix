@@ -2,18 +2,21 @@ ExUnit.start()
 :application.ensure_all_started(:plug)
 :application.ensure_all_started(:phoenix)
 
-Application.put_env(:phoenix, PrometheusPhoenixTest.Endpoint,
-  [instrumenters: [TestPhoenixInstrumenter,
-                   TestPhoenixInstrumenterWithConfig],
-   pubsub: [name: SlackinEx.PubSub,
-            adapter: Phoenix.PubSub.PG2]])
+Application.put_env(
+  :phoenix,
+  PrometheusPhoenixTest.Endpoint,
+  instrumenters: [TestPhoenixInstrumenter, TestPhoenixInstrumenterWithConfig],
+  pubsub: [name: SlackinEx.PubSub, adapter: Phoenix.PubSub.PG2]
+)
 
-Application.put_env(:prometheus, TestPhoenixInstrumenterWithConfig,
-  controller_call_labels: [:controller,
-                           :custom_label],
+Application.put_env(
+  :prometheus,
+  TestPhoenixInstrumenterWithConfig,
+  controller_call_labels: [:controller, :custom_label],
   registry: :qwe,
   duration_buckets: [100, 200],
-  duration_unit: :seconds)
+  duration_unit: :seconds
+)
 
 defmodule TestPhoenixInstrumenter do
   use Prometheus.PhoenixInstrumenter
@@ -29,16 +32,16 @@ end
 
 defmodule PrometheusPhoenixTest.Router do
   use Phoenix.Router
-  get "/qwe", PrometheusPhoenixTest.Controller, :qwe
-  get "/qwe_view", PrometheusPhoenixTest.Controller, :qwe_view
+  get("/qwe", PrometheusPhoenixTest.Controller, :qwe)
+  get("/qwe_view", PrometheusPhoenixTest.Controller, :qwe_view)
 end
 
 defmodule PrometheusPhoenixTest.Endpoint do
   use Phoenix.Endpoint, otp_app: :phoenix
 
-  socket "/socket", PrometheusPhoenixTest.TestSocket
+  socket("/socket", PrometheusPhoenixTest.TestSocket)
 
-  plug PrometheusPhoenixTest.Router
+  plug(PrometheusPhoenixTest.Router)
 end
 
 defmodule PrometheusPhoenixTest.View do
@@ -50,6 +53,7 @@ defmodule PrometheusPhoenixTest.Controller do
 
   def qwe(conn, _params) do
     Process.sleep(1000)
+
     conn
     |> put_resp_content_type("text/html")
     |> send_resp(200, "qwe")
@@ -64,10 +68,9 @@ end
 defmodule PrometheusPhoenixTest.TestSocket do
   use Phoenix.Socket
 
-  channel "qwe:*", PrometheusPhoenixTest.TestChannel
+  channel("qwe:*", PrometheusPhoenixTest.TestChannel)
 
-  transport :websocket, Phoenix.Transports.WebSocket,
-    timeout: 45_000
+  transport(:websocket, Phoenix.Transports.WebSocket, timeout: 45_000)
 
   def connect(_params, socket) do
     {:ok, socket}
@@ -90,4 +93,4 @@ defmodule PrometheusPhoenixTest.TestChannel do
   end
 end
 
-PrometheusPhoenixTest.Endpoint.start_link
+PrometheusPhoenixTest.Endpoint.start_link()
