@@ -43,19 +43,18 @@ This integartion is configured via <InstrumenterName> `:prometheus` app env key.
 
 [Available in Hex](https://hex.pm/packages/prometheus_phoenix/), the package can be installed as:
 
-  1. Add `prometheus_phoenix` to your list of dependencies in `mix.exs`:
+1. Add `prometheus_phoenix` to your list of dependencies in `mix.exs`:
+  
+   ```elixir
+   def deps do
+     [{:prometheus_phoenix, "~> 1.2.0"}]
+   end
+   ```
 
-    ```elixir
-    def deps do
-      [{:prometheus_phoenix, "~> 1.2.0"}]
-    end
-    ```
+2. Ensure `prometheus_phoenix` is started before your application:
 
-  2. Ensure `prometheus_phoenix` is started before your application:
-
-    ```elixir
-    def application do
-      [applications: [:prometheus_phoenix]]
-    end
-    ```
-
+   ```elixir
+   def application do
+     [applications: [:prometheus_phoenix]]
+   end
+   ```
