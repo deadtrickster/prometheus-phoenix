@@ -110,6 +110,7 @@ defmodule Prometheus.PhoenixInstrumenter do
   by calling exported function from other module.
 
   ```elixir
+  config :prometheus, MyApp.Endpoint.Instrumenter,
     controller_call_labels: [:controller,
                              :my_private_label,
                              {:label_from_other_module, Module}, # eqv to {Module, label_value}
@@ -118,7 +119,7 @@ defmodule Prometheus.PhoenixInstrumenter do
   defmodule MyApp.Endpoint.Instrumenter do
     use Prometheus.PhoenixInstrumenter
 
-    label_value(:my_private_label, conn) do
+    def label_value(:my_private_label, conn) do
       ...
     end
   end
