@@ -89,9 +89,17 @@ defmodule PrometheusPhoenixTest do
                name: :phoenix_channel_join_duration_microseconds,
                labels: ["PrometheusPhoenixTest.TestChannel", "qwe:qwa", "channel_test", "2.0.0"]
              )
+    assert {custom_buckets, custom_sum} =
+             Histogram.value(
+               name: :phoenix_channel_join_duration_seconds,
+               labels: ["PrometheusPhoenixTest.TestChannel", "custom_channel:qwe:qwa"],
+               registry: :qwe
+             )
 
-    assert sum > 200_000 and sum < 300_000
+    assert sum > 200_000 and sum < 300_000        #milliseconds
+    assert custom_sum > 0.2 and custom_sum < 0.3  #seconds
     assert 1 = Enum.reduce(buckets, fn x, acc -> x + acc end)
+    assert 1 = Enum.reduce(custom_buckets, fn x, acc -> x + acc end)
 
     assert {buckets, sum} =
              Histogram.value(

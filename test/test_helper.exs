@@ -13,6 +13,7 @@ Application.put_env(
   :prometheus,
   TestPhoenixInstrumenterWithConfig,
   controller_call_labels: [:controller, :custom_label],
+  channel_join_labels: [:channel, :custom_channel_label],
   registry: :qwe,
   duration_buckets: [100, 200],
   duration_unit: :seconds
@@ -27,6 +28,10 @@ defmodule TestPhoenixInstrumenterWithConfig do
 
   def label_value(:custom_label, _) do
     "custom_label"
+  end
+
+  def label_value(:custom_channel_label, _socket = %{topic: topic}) do
+    "custom_channel:#{topic}"
   end
 end
 
