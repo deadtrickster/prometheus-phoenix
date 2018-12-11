@@ -208,7 +208,7 @@ defmodule Prometheus.PhoenixInstrumenter do
       end
 
       def phoenix_controller_call(:stop, time_diff, %{conn: conn, compile: compile} = data) do
-        labels = unquote(construct_labels(controller_call_labels))
+        labels = unquote(construct_labels(controller_call_labels, :conn))
 
         Histogram.observe(
           [
@@ -229,7 +229,7 @@ defmodule Prometheus.PhoenixInstrumenter do
             time_diff,
             %{view: view, template: template, format: format, conn: conn, compile: compile} = data
           ) do
-        labels = unquote(construct_labels(controller_render_labels))
+        labels = unquote(construct_labels(controller_render_labels, :conn))
 
         Histogram.observe(
           [
@@ -246,7 +246,7 @@ defmodule Prometheus.PhoenixInstrumenter do
       end
 
       def phoenix_channel_join(:stop, time_diff, %{socket: socket, compile: compile} = data) do
-        labels = unquote(construct_labels(channel_join_labels))
+        labels = unquote(construct_labels(channel_join_labels, :socket))
 
         Histogram.observe(
           [
@@ -267,7 +267,7 @@ defmodule Prometheus.PhoenixInstrumenter do
             time_diff,
             %{socket: socket, event: event, compile: compile} = data
           ) do
-        labels = unquote(construct_labels(channel_receive_labels))
+        labels = unquote(construct_labels(channel_receive_labels, :socket))
 
         Histogram.observe(
           [
@@ -290,175 +290,193 @@ defmodule Prometheus.PhoenixInstrumenter do
     end
   end
 
-  defp construct_labels(labels) do
-    for label <- labels, do: label_value(label)
+  defp construct_labels(labels, type) do
+    for label <- labels, do: label_value(label, type)
   end
 
   ## controller labels
-  defp label_value(:action) do
+  defp label_value(:action, :conn) do
     quote do
       action_name(conn)
     end
   end
 
-  defp label_value(:controller) do
+  defp label_value(:controller, :conn) do
     quote do
       inspect(controller_module(conn))
     end
   end
 
   ## view labels
-  defp label_value(:format) do
+  defp label_value(:format, _) do
     quote do
       format
     end
   end
 
-  defp label_value(:template) do
+  defp label_value(:template, _) do
     quote do
       template
     end
   end
 
-  defp label_value(:view) do
+  defp label_value(:view, _) do
     quote do
       view
     end
   end
 
   ## request labels
-  defp label_value(:host) do
+  defp label_value(:host, :conn) do
     quote do
       conn.host
     end
   end
 
-  defp label_value(:method) do
+  defp label_value(:method, :conn) do
     quote do
       conn.method
     end
   end
 
-  defp label_value(:port) do
+  defp label_value(:port, :conn) do
     quote do
       conn.port
     end
   end
 
-  defp label_value(:scheme) do
+  defp label_value(:scheme, :conn) do
     quote do
       conn.scheme
     end
   end
 
   ## channel metrics
-  defp label_value(:channel) do
+  defp label_value(:channel, :socket) do
     quote do
       inspect(socket.channel)
     end
   end
 
-  defp label_value(:endpoint) do
+  defp label_value(:endpoint, :socket) do
     quote do
       inspect(socket.endpoint)
     end
   end
 
-  defp label_value(:handler) do
+  defp label_value(:handler, :socket) do
     quote do
       inspect(socket.handler)
     end
   end
 
-  defp label_value(:pubsub_server) do
+  defp label_value(:pubsub_server, :socket) do
     quote do
       inspect(socket.pubsub_server)
     end
   end
 
-  defp label_value(:serializer) do
+  defp label_value(:serializer, :socket) do
     quote do
       inspect(socket.serializer)
     end
   end
 
-  defp label_value(:topic) do
+  defp label_value(:topic, :socket) do
     quote do
       socket.topic
     end
   end
 
-  defp label_value(:transport) do
+  defp label_value(:transport, :socket) do
     quote do
       inspect(socket.transport)
     end
   end
 
-  defp label_value(:transport_name) do
+  defp label_value(:transport_name, :socket) do
     quote do
       Atom.to_string(socket.transport_name)
     end
   end
 
-  defp label_value(:vsn) do
+  defp label_value(:vsn, :socket) do
     quote do
       socket.vsn
     end
   end
 
   ## channel receive labels
-  defp label_value(:event) do
+  defp label_value(:event, _) do
     quote do
       event
     end
   end
 
   ## compile metadata labels
-  defp label_value(:application) do
+  defp label_value(:application, _) do
     quote do
       inspect(compile.application)
     end
   end
 
-  defp label_value(:file) do
+  defp label_value(:file, _) do
     quote do
       compile.file
     end
   end
 
-  defp label_value(:function) do
+  defp label_value(:function, _) do
     quote do
       inspect(compile.function)
     end
   end
 
-  defp label_value(:line) do
+  defp label_value(:line, _) do
     quote do
       compile.line
     end
   end
 
-  defp label_value(:module) do
+  defp label_value(:module, _) do
     quote do
       inspect(compile.module)
     end
   end
 
-  defp label_value({label, {module, fun}}) do
+  defp label_value({label, {module, fun}}, :conn) do
     quote do
       unquote(module).unquote(fun)(unquote(label), conn)
     end
   end
 
-  defp label_value({label, module}) do
+  defp label_value({label, {module, fun}}, :socket) do
+    quote do
+      unquote(module).unquote(fun)(unquote(label), socket)
+    end
+  end
+
+  defp label_value({label, module}, :conn) do
     quote do
       unquote(module).label_value(unquote(label), conn)
     end
   end
 
-  defp label_value(label) do
+  defp label_value({label, module}, :socket) do
+    quote do
+      unquote(module).label_value(unquote(label), socket)
+    end
+  end
+
+  defp label_value(label, :conn) do
     quote do
       label_value(unquote(label), conn)
+    end
+  end
+
+  defp label_value(label, :socket) do
+    quote do
+      label_value(unquote(label), socket)
     end
   end
 end
