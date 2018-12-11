@@ -30,7 +30,7 @@ defmodule TestPhoenixInstrumenterWithConfig do
     "custom_label"
   end
 
-  def label_value(:custom_channel_label, _socket = %{topic: topic}) do
+  def label_value(:custom_channel_label, %{topic: topic} = _socket) do
     "custom_channel:#{topic}"
   end
 end
