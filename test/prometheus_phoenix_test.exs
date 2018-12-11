@@ -81,7 +81,7 @@ defmodule PrometheusPhoenixTest do
       socket
       |> subscribe_and_join(PrometheusPhoenixTest.TestChannel, "qwe:qwa")
 
-    ref = push(socket, "invite", %{"user" => "John"})
+    ref = Phoenix.ChannelTest.push(socket, "invite", %{"user" => "John"})
     assert_reply(ref, :ok, %{"user" => "John"}, 1000)
 
     assert {buckets, sum} =
