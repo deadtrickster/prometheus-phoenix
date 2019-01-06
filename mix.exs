@@ -50,7 +50,7 @@ defmodule PrometheusPhoenix.Mixfile do
   defp deps do
     [
       {:prometheus_ex, "~> 1.3 or ~> 2.0 or ~> 3.0"},
-      {:phoenix, "~> 1.3"},
+      {:phoenix, "~> 1.3.0"},
       {:phoenix_html, "~> 2.10", only: [:test]},
       {:ex_doc, "~> 0.16.1", only: [:dev]},
       {:earmark, "~> 1.2", only: [:dev]},
