@@ -28,7 +28,7 @@ https://slackinex.herokuapp.com/metrics
 
 ## Configuration
 
-This integartion is configured via <InstrumenterName> `:prometheus` app env key. Please see `Prometheus.PhoenixInstrumenter` module documentation for more information.
+This integration is configured via <InstrumenterName> `:prometheus` app env key. Please see `Prometheus.PhoenixInstrumenter` module documentation for more information.
 
 ## Integrations / Collectors / Instrumenters
  - [Ecto collector](https://github.com/deadtrickster/prometheus-ecto)
