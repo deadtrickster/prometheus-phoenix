@@ -47,7 +47,7 @@ This integration is configured via <InstrumenterName> `:prometheus` app env key.
   
    ```elixir
    def deps do
-     [{:prometheus_phoenix, "~> 1.2.0"}]
+     [{:prometheus_phoenix, "~> 1.3.0"}]
    end
    ```
 
