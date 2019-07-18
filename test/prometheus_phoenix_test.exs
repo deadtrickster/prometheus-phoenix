@@ -74,8 +74,7 @@ defmodule PrometheusPhoenixTest do
   end
 
   test "Channel join/receive" do
-    socket = socket()
-    socket = %{socket | vsn: "2.0.0"}
+    socket = socket(PrometheusPhoenixTest.TestSocket)
 
     {:ok, _, socket} =
       socket
@@ -87,8 +86,9 @@ defmodule PrometheusPhoenixTest do
     assert {buckets, sum} =
              Histogram.value(
                name: :phoenix_channel_join_duration_microseconds,
-               labels: ["PrometheusPhoenixTest.TestChannel", "qwe:qwa", "channel_test", "2.0.0"]
+               labels: ["PrometheusPhoenixTest.TestChannel", "qwe:qwa", "channel_test"]
              )
+
     assert {custom_buckets, custom_sum} =
              Histogram.value(
                name: :phoenix_channel_join_duration_seconds,
@@ -96,8 +96,10 @@ defmodule PrometheusPhoenixTest do
                registry: :qwe
              )
 
-    assert sum > 200_000 and sum < 300_000        #milliseconds
-    assert custom_sum > 0.2 and custom_sum < 0.3  #seconds
+    # milliseconds
+    assert sum > 200_000 and sum < 300_000
+    # seconds
+    assert custom_sum > 0.2 and custom_sum < 0.3
     assert 1 = Enum.reduce(buckets, fn x, acc -> x + acc end)
     assert 1 = Enum.reduce(custom_buckets, fn x, acc -> x + acc end)
 
@@ -108,7 +110,6 @@ defmodule PrometheusPhoenixTest do
                  "PrometheusPhoenixTest.TestChannel",
                  "qwe:qwa",
                  "channel_test",
-                 "2.0.0",
                  "invite"
                ]
              )

@@ -58,9 +58,7 @@ defmodule Prometheus.PhoenixInstrumenter do
    - pubsub_server - registered name of the socket's pubsub server;
    - serializer - serializer for socket messages;
    - topic - string topic  (*default*);
-   - transport - socket's transport;
-   - transport_name - socket's transport (*default*);
-   - vsn - protocol version of the client (*default*).
+   - transport - socket's transport (*default*);
 
   Predefined channel receive labels:
    - event - event name (*default*).
@@ -134,8 +132,8 @@ defmodule Prometheus.PhoenixInstrumenter do
   use Prometheus.Config,
     controller_call_labels: [:action, :controller],
     controller_render_labels: [:format, :template, :view],
-    channel_join_labels: [:channel, :topic, :transport_name, :vsn],
-    channel_receive_labels: [:channel, :topic, :transport_name, :vsn, :event],
+    channel_join_labels: [:channel, :topic, :transport],
+    channel_receive_labels: [:channel, :topic, :transport, :event],
     duration_buckets: HTTP.microseconds_duration_buckets(),
     registry: :default,
     duration_unit: :microseconds
@@ -390,19 +388,7 @@ defmodule Prometheus.PhoenixInstrumenter do
 
   defp label_value(:transport, :socket) do
     quote do
-      inspect(socket.transport)
-    end
-  end
-
-  defp label_value(:transport_name, :socket) do
-    quote do
-      Atom.to_string(socket.transport_name)
-    end
-  end
-
-  defp label_value(:vsn, :socket) do
-    quote do
-      socket.vsn
+      to_string(socket.transport)
     end
   end
 
