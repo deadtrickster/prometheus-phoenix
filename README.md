@@ -4,7 +4,7 @@
 [![Build Status](https://travis-ci.org/deadtrickster/prometheus-phoenix.svg?branch=master)](https://travis-ci.org/deadtrickster/prometheus-phoenix)
 [![Documentation](https://img.shields.io/badge/documentation-on%20hexdocs-green.svg)](https://hexdocs.pm/prometheus_phoenix/)
 
-Phoenix integeration for [Prometheus.ex](https://github.com/deadtrickster/prometheus.ex).
+Phoenix integration for [Prometheus.ex](https://github.com/deadtrickster/prometheus.ex).
 
  - IRC: #elixir-lang on Freenode;
  - [Slack](https://elixir-slackin.herokuapp.com/): #prometheus channel - [Browser](https://elixir-lang.slack.com/messages/prometheus) or App(slack://elixir-lang.slack.com/messages/prometheus).
