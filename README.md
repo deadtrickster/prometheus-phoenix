@@ -1,8 +1,11 @@
 # Prometheus.io Phoenix Instrumenter
-[![Hex.pm](https://img.shields.io/hexpm/v/prometheus_phoenix.svg?maxAge=2592000)](https://hex.pm/packages/prometheus_phoenix)
-[![Hex.pm](https://img.shields.io/hexpm/dt/prometheus_phoenix.svg?maxAge=2592000)](https://hex.pm/packages/prometheus_phoenix)
+
 [![Build Status](https://travis-ci.org/deadtrickster/prometheus-phoenix.svg?branch=master)](https://travis-ci.org/deadtrickster/prometheus-phoenix)
-[![Documentation](https://img.shields.io/badge/documentation-on%20hexdocs-green.svg)](https://hexdocs.pm/prometheus_phoenix/)
+[![Module version](https://img.shields.io/hexpm/v/prometheus_phoenix.svg?maxAge=2592000?style=plastic)](https://hex.pm/packages/prometheus_phoenix)
+[![Documentation](https://img.shields.io/badge/hex-docs-green.svg)](https://hexdocs.pm/prometheus_phoenix/)
+[![Total Download](https://img.shields.io/hexpm/dt/prometheus_phoenix.svg?maxAge=2592000)](https://hex.pm/packages/prometheus_phoenix)
+[![License](https://img.shields.io/hexpm/l/prometheus_phoenix.svg?maxAge=259200)](https://github.com/deadtrickster/prometheus-phoenix/blob/master/LICENSE)
+[![Last Updated](https://img.shields.io/github/last-commit/deadtrickster/prometheus-phoenix.svg)](https://github.com/deadtrickster/prometheus-phoenix/commits/master)
 
 Phoenix integration for [Prometheus.ex](https://github.com/deadtrickster/prometheus.ex).
 
@@ -21,7 +24,7 @@ Phoenix integration for [Prometheus.ex](https://github.com/deadtrickster/prometh
     - `phoenix_channel_join_duration_<duration_unit>`;
   - `phoenix_channel_receive`
     - `phoenix_channel_receive_duration_<duration_unit>`.
-    
+
 ## Live endpoint
 
 https://slackinex.herokuapp.com/metrics
@@ -43,15 +46,15 @@ This integration is configured via <InstrumenterName> `:prometheus` app env key.
 
 [Available in Hex](https://hex.pm/packages/prometheus_phoenix/), the package can be installed as:
 
-1. Add `prometheus_phoenix` to your list of dependencies in `mix.exs`:
-  
+1. Add `:prometheus_phoenix` to your list of dependencies in `mix.exs`:
+
    ```elixir
    def deps do
      [{:prometheus_phoenix, "~> 1.3.0"}]
    end
    ```
 
-2. Ensure `prometheus_phoenix` is started before your application:
+2. Ensure `:prometheus_phoenix` is started before your application:
 
    ```elixir
    def application do

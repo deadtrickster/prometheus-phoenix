@@ -5,29 +5,29 @@ defmodule Prometheus.PhoenixInstrumenter do
 
   ### Usage
 
-  1. Define your instrumenter:
+  1.  Define your instrumenter:
 
-  ```elixir
-  defmodule MyApp.Endpoint.Instrumenter do
-    use Prometheus.PhoenixInstrumenter
-  end
-  ```
+      ```elixir
+      defmodule MyApp.Endpoint.Instrumenter do
+        use Prometheus.PhoenixInstrumenter
+      end
+      ```
 
-  2. Call `MyApp.Endpoint.Instrumenter.setup/0` when application starts (e.g. supervisor setup):
+  2.  Call `MyApp.Endpoint.Instrumenter.setup/0` when application starts (e.g. supervisor setup):
 
-  ```elixir
-  MyApp.Endpoint.Instrumenter.setup()
-  ```
+      ```elixir
+      MyApp.Endpoint.Instrumenter.setup()
+      ```
 
-  3. Add `MyApp.Endpoint.Instrumenter` to Phoenix endpoint instrumenters list:
+  3.  Add `MyApp.Endpoint.Instrumenter` to Phoenix endpoint instrumenters list:
 
-  ```elixir
-  config :myapp, MyApp.Endpoint,
-    ...
-    instrumenters: [MyApp.Endpoint.Instrumenter]
-    ...
+      ```elixir
+      config :myapp, MyApp.Endpoint,
+        ...
+        instrumenters: [MyApp.Endpoint.Instrumenter]
+        ...
 
-  ```
+      ```
 
   ### Metrics
 
@@ -104,24 +104,25 @@ defmodule Prometheus.PhoenixInstrumenter do
 
   ### Custom Labels
 
-  Custom labels can be defined by implementing label_value/2 function in instrumenter directly or
+  Custom labels can be defined by implementing `label_value/2` function in instrumenter directly or
   by calling exported function from other module.
 
-  ```elixir
-  config :prometheus, MyApp.Endpoint.Instrumenter,
-    controller_call_labels: [:controller,
-                             :my_private_label,
-                             {:label_from_other_module, Module}, # eqv to {Module, label_value}
-                             {:non_default_label_value, {Module, custom_fun}}]
+    ```elixir
+    config :prometheus, MyApp.Endpoint.Instrumenter,
+      controller_call_labels: [:controller,
+                               :my_private_label,
+                               {:label_from_other_module, Module}, # eqv to {Module, label_value}
+                               {:non_default_label_value, {Module, custom_fun}}]
 
-  defmodule MyApp.Endpoint.Instrumenter do
-    use Prometheus.PhoenixInstrumenter
+    defmodule MyApp.Endpoint.Instrumenter do
+      use Prometheus.PhoenixInstrumenter
 
-    def label_value(:my_private_label, conn) do
-      ...
+      def label_value(:my_private_label, conn) do
+        ...
+      end
     end
-  end
-  ```
+    ```
+
   """
 
   import Phoenix.Controller
