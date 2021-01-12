@@ -1,6 +1,7 @@
 defmodule PrometheusPhoenix.Mixfile do
   use Mix.Project
 
+  @source_url "https://github.com/deadtrickster/prometheus-phoenix"
   @version "1.3.0"
 
   def project do
@@ -14,9 +15,10 @@ defmodule PrometheusPhoenix.Mixfile do
       description: description(),
       package: package(),
       docs: [
-        main: Prometheus.PhoenixInstrumenter,
+        main: "readme",
         source_ref: "v#{@version}",
-        source_url: "https://github.com/deadtrickster/prometheus-phoenix"
+        source_url: @source_url,
+        extras: ["README.md"]
       ]
     ]
   end
@@ -36,7 +38,7 @@ defmodule PrometheusPhoenix.Mixfile do
       maintainers: ["Ilya Khaprov"],
       licenses: ["MIT"],
       links: %{
-        "GitHub" => "https://github.com/deadtrickster/prometheus-phoenix",
+        "GitHub" => @source_url,
         "Prometheus.erl" => "https://hex.pm/packages/prometheus",
         "Prometheus.ex" => "https://hex.pm/packages/prometheus_ex",
         "Plugs Instrumenter/Exporter" => "https://hex.pm/packages/prometheus_plugs",
@@ -53,8 +55,7 @@ defmodule PrometheusPhoenix.Mixfile do
       {:phoenix, "~> 1.4"},
       {:jason, "~> 1.1", only: [:dev, :test]},
       {:phoenix_html, "~> 2.10", only: [:test]},
-      {:ex_doc, "~> 0.16.1", only: [:dev]},
-      {:earmark, "~> 1.2", only: [:dev]},
+      {:ex_doc, ">= 0.0.0", only: [:dev]},
       {:credo, git: "https://github.com/rrrene/credo", only: [:dev, :test], runtime: false}
     ]
   end
