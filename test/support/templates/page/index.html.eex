@@ -1,0 +1,4 @@
+<section class="phx-hero">
+    <h1>Welcome to PrometheusPhoenix!</h1>
+    <p>Writing your phoenix telemetry events to prometheus since 1.5</p>
+</section>
